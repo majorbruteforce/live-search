@@ -37,9 +37,11 @@ app.get("/", (req, res) => {
 });
 
 app.post("/songs", (req, res) => {
-  console.log(req.body);
-  console.log("Request made");
-  res.send({name: "Louis Litt",});
+
+  console.log(chalk.blue(`Query by ${req.ip}: `),req.query.search);
+  
+
+
 });
 
 app.listen(3000, () => {
