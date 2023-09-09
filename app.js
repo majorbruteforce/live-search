@@ -4,6 +4,7 @@ const env = require("dotenv");
 const cors = require("cors");
 const app = express();
 const findFromDB = require("./find.js"); 
+const getBuffer= require('./buffer.js');
 
 env.config();
 
@@ -36,14 +37,19 @@ app.get("/", (req, res) => {
   res.send('index.html');
 });
 
+app.post("/get-buffer", async (req,res)=>{
+  
+  const songs = await getBuffer(parseInt(req.query.number));
+  res.json(songs);
+})
 
 app.post("/songs", async (req, res) => {
-  // const results= await findFromDB(req.query.search);
+  const results= await findFromDB(req.query.search);
   console.log(`Query by ${req.ip}: `,req.query.search);
-  // console.log(results);
+  console.log(results);
   
 });
 
-app.listen(3000, () => {
-  console.log(`Server is live at http://127.0.0.1:3000`);
+app.listen(3001, () => {
+  console.log(`Server is live at http://127.0.0.1:3001`);
 });
