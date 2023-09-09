@@ -17,11 +17,11 @@ searchBox.addEventListener('keyup',async ()=>{
 async function checkDB(key){
         let data;
         let url = API_ENDPOINT + `?search=${key}`;
-        await fetch(url, {
+        const response= await fetch(url, {
           method: "POST",
         })
           .then((response) => {
-            data= response.text();
+            data= response.json();
           })
-        return data;  
+        console.log(response);
 }
