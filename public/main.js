@@ -10,20 +10,47 @@ searchBox.addEventListener("keyup", async () => {
     searchKey = searchBox.value;
     resultDiv.innerHTML = "";
 
-    // let user finish typing
-    if (t) {
-        clearTimeout(t);
+    if(searchKey) {
+        // let user finish typing
+        if (t) {
+            clearTimeout(t);
+        }
+        t = setTimeout(async () => {
+            await checkDB(searchKey);
+        }, 500);
     }
-    t = setTimeout(async () => {
-        await checkDB(searchKey);
-    }, 500);
-    
 });
 
+let request;
+let controller;
+
 async function checkDB(key) {
-    const res = await fetch(`${document.location.origin}/songs?search=${key}`);
-    const list = await res.json();
-    list.forEach(element => {
-        resultDiv.innerHTML += `<li>${element.title}</li>`;
-    });
+
+    // abort previous pending request if any
+    if (request) {
+        controller.abort();
+    }
+
+    try {
+        // send new request
+        controller = new AbortController();
+
+        request = fetch(`${document.location.origin}/songs?search=${key}`, {
+            signal: controller.signal,
+        });
+
+        const response = await request;
+        const list = await response.json();
+        console.log(list);
+
+        list.forEach((element) => {
+            resultDiv.innerHTML += `<li>${element}</li>`;
+        });
+
+        // set pending requests to null
+        request = null;
+
+    } catch (err) {
+        console.log("fetch aborted");
+    }
 }
