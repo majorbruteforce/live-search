@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const env = require("dotenv");
 const cors = require("cors");
 const app = express();
-const findFromDB = require("./find.js"); 
-const getBuffer= require('./buffer.js');
+const findFromDB = require("./find.js");
+const getBuffer = require("./buffer.js");
 const searchTest = require("./db.js");
 
 env.config();
@@ -18,35 +18,42 @@ const db_uri = `mongodb+srv://${db_user}:${db_password}@shooting-stars.lweczfy.m
 
 const db = mongoose.connection;
 
-mongoose.connect(db_uri)
-.then(()=>{
-    console.log("Connected to database successfully.");
-})
-.catch(err=>{
-    console.log(err.message);
-})
+mongoose
+    .connect(db_uri)
+    .then(() => {
+        console.log("Connected to database successfully.");
+    })
+    .catch((err) => {
+        console.log(err.message);
+    });
 
 db.on("disconnected", () => {
-  console.log("Disconnected from database.");
+    console.log("Disconnected from database.");
 });
 
 db.on("error", (err) => {
-  console.log(`Database error: ${err}`);
+    console.log(`Database error: ${err}`);
 });
 
 app.get("/", (req, res) => {
-  res.send('index.html');
+    res.send("index.html");
 });
 
-app.post("/get-buffer", async (req,res)=>{
-  
-  const songs = await getBuffer(parseInt(req.query.number));
-  res.json(songs);
-})
+app.post("/get-buffer", async (req, res) => {
+    const songs = await getBuffer(parseInt(req.query.number));
+    res.json(songs);
+});
 
 app.get("/songs", async (req, res) => {
-  const response = await searchTest.find({title: {$regex: `^${req.query.search}`, $options: "i"}});
-  res.json(response);
+    try {
+        const response = await searchTest.find({
+            title: { $regex: `^${req.query.search}`, $options: "i" },
+        });
+        res.json(response);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json([]);
+    }
 });
 // app.get("/songs", async (req, res) => {
 //   const results= await findFromDB(req.query.search);
@@ -56,5 +63,5 @@ app.get("/songs", async (req, res) => {
 // });
 
 app.listen(3001, () => {
-  console.log(`Server is live at http://127.0.0.1:3001`);
+    console.log(`Server is live at http://127.0.0.1:3001`);
 });
