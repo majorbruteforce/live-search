@@ -5,6 +5,7 @@ const cors = require("cors");
 const app = express();
 const findFromDB = require("./find.js"); 
 const getBuffer= require('./buffer.js');
+const searchTest = require("./db.js");
 
 env.config();
 
@@ -43,12 +44,16 @@ app.post("/get-buffer", async (req,res)=>{
   res.json(songs);
 })
 
-app.post("/songs", async (req, res) => {
-  const results= await findFromDB(req.query.search);
-  console.log(`Query by ${req.ip}: `,req.query.search);
-  console.log(results);
-  
+app.get("/songs", async (req, res) => {
+  const response = await searchTest.find({title: {$regex: `^${req.query.search}`, $options: "i"}});
+  res.json(response);
 });
+// app.get("/songs", async (req, res) => {
+//   const results= await findFromDB(req.query.search);
+//   console.log(`Query by ${req.ip}: `,req.query.search);
+//   console.log(results);
+//   res.json(results);
+// });
 
 app.listen(3001, () => {
   console.log(`Server is live at http://127.0.0.1:3001`);
