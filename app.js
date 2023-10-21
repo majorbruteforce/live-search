@@ -45,7 +45,11 @@ app.post("/get-buffer", async (req,res)=>{
 })
 
 app.get("/songs", async (req, res) => {
-  const response = await searchTest.find({title: {$regex: `^${req.query.search}`, $options: "i"}});
+  const response = await searchTest.find({
+    title: { $regex: `^${req.query.search}`, $options: "i" },
+  });
+  console.log(`Query by ${req.ip}: `, req.query.search);
+  console.log(response);
   res.json(response);
 });
 // app.get("/songs", async (req, res) => {

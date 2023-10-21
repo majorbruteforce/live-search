@@ -44,13 +44,14 @@ async function checkDB(key) {
         console.log(list);
 
         list.forEach((element) => {
-            resultDiv.innerHTML += `<li>${element}</li>`;
+            resultDiv.innerHTML += `<li>${element.title}</li>`;
         });
 
         // set pending requests to null
         request = null;
 
     } catch (err) {
+        console.log(err.message);
         console.log("fetch aborted");
     }
 }
