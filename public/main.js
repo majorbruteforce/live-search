@@ -1,57 +1,54 @@
 const searchBox = document.getElementById("search-box");
 const resultDiv = document.getElementById("results");
-let searchKey;
-let data;
 let t;
-
-const API_ENDPOINT = "http://localhost:3000/songs";
-
-searchBox.addEventListener("keyup", async () => {
-    searchKey = searchBox.value;
-    resultDiv.innerHTML = "";
-
-    if(searchKey) {
-        // let user finish typing
-        if (t) {
-            clearTimeout(t);
-        }
-        t = setTimeout(async () => {
-            await checkDB(searchKey);
-        }, 500);
-    }
-});
-
-let request;
+let isPending;
 let controller;
 
 async function checkDB(key) {
 
     // abort previous pending request if any
-    if (request) {
+    if (isPending) {
         controller.abort();
     }
 
     try {
-        // send new request
-        controller = new AbortController();
+        
+        if(key !== "") {
 
-        request = fetch(`${document.location.origin}/songs?search=${key}`, {
-            signal: controller.signal,
-        });
+            // set abortController for new request
+            controller = new AbortController();
+            isPending = true;
 
-        const response = await request;
-        const list = await response.json();
-        console.log(list);
+            const response = await fetch(`${document.location.origin}/songs?search=${key}`, {
+                signal: controller.signal,
+            });
+            const list = await response.json();
 
-        list.forEach((element) => {
-            resultDiv.innerHTML += `<li>${element.title}</li>`;
-        });
+            console.log(list);
 
-        // set pending requests to null
-        request = null;
+            list.forEach((element) => {
+                resultDiv.innerHTML += `<li>${element.title}</li>`;
+            });
+
+            isPending = false;
+        }
 
     } catch (err) {
-        console.log(err.message);
-        console.log("fetch aborted");
+        console.log("fetch aborted for "+key);
     }
 }
+
+function handleChange() {
+    const searchKey = searchBox.value;
+
+    // let user finish typing
+    if (t) {
+        clearTimeout(t);
+    }
+    t = setTimeout(async () => {
+        resultDiv.innerHTML = "";
+        checkDB(searchKey.trim()); // remove spaces from begnning and end
+    }, 500);
+}
+
+searchBox.addEventListener("keyup", handleChange);
